@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <div class="box">
+    <h2 class="subtitle is-3">Room activity level</h2>
+    <progress id="ackValue" class="progress is-large is-info" value="0" max="10">0%</progress>
+  </div>
+
+  <div class="box">
+    <h2 class="subtitle is-3">Sensor activity</h2>
+    <progress id="sensor1" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor2" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor3" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor4" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor5" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor6" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor7" class="progress is-small" value="0" max="10">0%</progress>
+    <progress id="sensor8" class="progress is-small" value="0" max="10">0%</progress>
+  </div>
+
+
+  <div class="box">
+    <h2 class="subtitle is-3">Settings</h2>
+    <div class="field">
+      <label class="label">Time</label>
+      <div class="control has-icons-left has-icons-right">
+        <input class="input"  id="settingsTimeInterval" value="<%= sensorState.timeInterval %>">
+        <span class="icon is-small is-left">
+          <i class="fas fa-clock fa-xs"></i>
+        </span>
+      </div>
+
+
+    </div>
+    <div class="field">
+      <label class="label">Number of sensors</label>
+      <div class="control has-icons-left has-icons-right">
+        <input class="input" type="email" id="settingsNoOfSensors" value="<%= sensorState.noOfSensors %>">
+        <span class="icon is-small is-left">
+          <i class="fas fa-exchange-alt fa-xs"></i>
+        </span>
+       
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Max activity value</label>
+      <div class="control has-icons-left has-icons-right">
+        <input class="input" type="email" id="settingMaxValue" value="<%= sensorState.maxValue %>">
+        <span class="icon is-small is-left">
+          <i class="fas fa-traffic-light fa-xs"></i>
+        </span>
+       
+      </div>
+    </div>
+    <div class="control">
+      <button id="btnUpdateSettings" class="button is-primary">Update</button>
+    </div>
+  </div>
+  <script src="/javascripts/jquery-3.4.1.min.js"></script>
+  <script src="/javascripts/ws.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+
+    <% for(var i=0; i < noOfVideos; i++) { %>
+    <video id="video<%= i%>_<%= i%>" muted nocontrols>
+        <source src="/video/video<%= i %>.mov" type="video/mp4">
+    </video>
+    <% for(var j=0; j < noOfVideos; j++) { %>
+    <% if (j != i) { %>
+    <video id="video<%= i%>_<%= j%>" muted nocontrols>
+        <source src="/video/video<%= i %>_<%= j %>.mov" type="video/mp4">
+    </video>
+    <% } %>
+    <% } %>
+    <% } %>
+
+    <script>
+    var noOfVideos = <%= sensorState.noOfVideos%>;
+    var videoStepSize = 10 / noOfVideos;
+    console.log("stepsize:", videoStepSize);
+    </script>
+
+    <script>
+
+        for (var i = 0; i < noOfVideos; i++) { 
+            document.getElementById('video' + i + '_' + i).addEventListener('ended', switchVideo, false);
+            for (var j = 0; j < noOfVideos; j++) { 
+                if (j != i) { 
+                    document.getElementById('video' + i + '_'+ j).addEventListener('ended', switchVideo, false);
+                }
+            } 
+        } 
+    
+
+        var playingIndex = 0;
+        var playingTowardsIndex = 0;
+        var avg = 0;
+        var valueWhenStarting = 0;
+        document.getElementById('video0_0').style.zIndex = "0";
+        document.getElementById('video0_0').play();
+        var currValueIndex = 0;
+
+        function switchVideo(e) {
+            console.log("switching video");
+            console.log("played video: " + playingIndex + "_" + playingTowardsIndex);
+            var playingVideo = document.getElementById('video' + playingIndex + '_' + playingTowardsIndex);
+            console.log("curr value: ", avg);
+            currValueIndex = Math.floor(avg / videoStepSize);
+            console.log("new value index: ",currValueIndex);
+            
+            if (currValueIndex >= noOfVideos){
+                console.log("error - index overflow");
+                currValueIndex = noOfVideos - 1;
+            }
+
+            // if not playing towards an index
+            if (playingTowardsIndex == playingIndex){
+                          
+                if (currValueIndex != playingIndex){
+                    console.log("new video: " + playingIndex + "_" + currValueIndex);
+
+                    //hide active video
+                    playingVideo.style.zIndex = "-100";
+
+                    //play towards new value
+                    playingTowardsIndex = currValueIndex;
+                    var newPlayingVideo = document.getElementById('video' + playingIndex + '_' + playingTowardsIndex);
+                    newPlayingVideo.style.zIndex = "0";
+                    newPlayingVideo.play();
+                }
+                // else play again
+                else{
+                    playingVideo.play();
+                }
+
+            }else {
+
+                //hide active video
+                playingVideo.style.zIndex = "-100";
+
+                // if we have played towards wrong index
+                if (currValueIndex != playingTowardsIndex){  
+
+                    //play from reached index towards new index
+                    playingIndex = playingTowardsIndex;
+                    playingTowardsIndex = currValueIndex;
+                    var newPlayingVideo = document.getElementById('video' + playingIndex + '_' + playingTowardsIndex);
+                    newPlayingVideo.style.zIndex = "0";
+                    newPlayingVideo.play();
+
+                }
+                // else start playing reached index
+                else{
+                    playingIndex = playingTowardsIndex;
+                    var newPlayingVideo = document.getElementById('video' + playingIndex + '_' + playingTowardsIndex);
+                    newPlayingVideo.style.zIndex = "0";
+                    newPlayingVideo.play();
+                }
+
+
+            }
+
+
+/*
+
+
+
+            if (playing == "0") {
+                if (avg != 0) {
+                    playingVideo.pause();
+                    playingVideo.style.zIndex = "-100";
+
+                    video01.style.zIndex = "0";
+                    
+                    playing = "01";
+                } else {
+                    video0.play();
+                }
+
+            } else if (playing == "01") {
+
+                video01.pause();
+                video01.style.zIndex = "-100";
+
+                if (avg != 0) {
+
+                    video1.style.zIndex = "0";
+                    video1.play();
+                    playing = "1";
+                } else {
+                    video10.style.zIndex = "0";
+                    video10.play();
+                    playing = "10";
+                }
+
+
+            } else if (playing == "10") {
+
+                video10.pause();
+                video10.style.zIndex = "-100";
+
+                if (avg != 0) {
+
+                    video01.style.zIndex = "0";
+                    video01.play();
+                    playing = "01";
+                } else {
+                    video0.style.zIndex = "0";
+                    video0.play();
+                    playing = "0";
+                }
+            } else if (playing == "1") {
+                if (avg == 0) {
+                    video1.pause();
+                    video1.style.zIndex = "-100";
+
+                    video10.style.zIndex = "0";
+                    video10.play();
+                    playing = "10";
+                } else {
+                    video1.play();
+                }
+
+            }*/
+
+        }
+
+        const ws = new WebSocket("wss://lobbysensor-ws.serveo.net");
+
+
+        ws.onerror = function (err) {
+            console.error("failed to make websocket connection");
+            throw err;
+        };
+
+        ws.onopen = function () {
+            console.log("connection established");
+
+            ws.send("<VS<%= sensorState.noOfSensors %>>");
+            ws.send("<VI<%= sensorState.timeInterval %> >");
+            ws.send("<VM<%= sensorState.maxValue %>>");
+
+        };
+
+        ws.onmessage = function (event) {
+            data = event.data;
+            if (data.startsWith("[") && data.endsWith("]")) {
+                values = data.substring(1, data.length - 1);
+                arr = values.split(",");
+                sum = 0;
+                for (i = 0; i < arr.length; i++) {
+                    sum += 1 * arr[i];
+                }
+                avg = sum / 8;
+                console.log(avg);
+            }
+        };
+
+
+
+
+    </script>
+
+    <style>
+        video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+        }
+    </style>
+
+
+</body>
+
+</html>

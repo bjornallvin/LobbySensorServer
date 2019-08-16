@@ -1,0 +1,26 @@
+{
+    "name": "web",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "nodemon ./bin/www"
+    },
+    "dependencies": {
+        "@serialport/parser-readline": "^2.0.2",
+        "chalk": "^2.4.2",
+        "cookie-parser": "~1.4.4",
+        "debug": "~2.6.9",
+        "dotenv": "^8.0.0",
+        "ejs": "~2.6.1",
+        "express": "~4.16.1",
+        "http-errors": "~1.6.3",
+        "ip": "^1.1.5",
+        "moment": "^2.24.0",
+        "morgan": "~1.9.1",
+        "nodemon": "^1.19.1",
+        "path": "^0.12.7",
+        "serialport": "^7.1.5",
+        "websocket": "^1.0.28",
+        "ws": "^7.0.1"
+    }
+}
